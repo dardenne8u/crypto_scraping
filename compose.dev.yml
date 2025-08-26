@@ -15,6 +15,32 @@ services:
       - builder-net
       - kafka-net
 
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+      dockerfile: Dockerfile
+    volumes:
+        - ./frontend:/app
+        - /app/node_modules
+        - /app/.next
+    ports:
+      - "3000:3000"
+    networks:
+      - app-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    networks:
+      - app-net
+      - db-net
+
   db:
     image: postgres
     restart: always
@@ -52,7 +78,9 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:29092,2@kafka-2:29092,3@kafka-3:29092
-      CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w" 
+      CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
+    volumes:
+      - kafka-data1:/var/lib/kafka/data
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
@@ -71,6 +99,8 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:29092,2@kafka-2:29092,3@kafka-3:29092
       CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
+    volumes:
+      - kafka-data2:/var/lib/kafka/data
 
   kafka-3:
     image: confluentinc/cp-kafka:latest
@@ -89,11 +119,15 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:29092,2@kafka-2:29092,3@kafka-3:29092
       CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
-
+    volumes:
+      - kafka-data3:/var/lib/kafka/data
 
 
 volumes:
-  dbvol:  
+  dbvol:
+  kafka-data1:
+  kafka-data2:
+  kafka-data3:
 
 networks:
   app-net:
