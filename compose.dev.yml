@@ -1,11 +1,11 @@
 services:
-  scrapper:
-    build: ./scrapper
-    container_name: scrapper
+  scraper:
+    build: ./scraper
+    container_name: scraper
     restart: unless-stopped
     networks:
       - kafka-net
-      - scrapper-net
+      - scraper-net
 
   builder:
     build: ./builder
@@ -100,7 +100,7 @@ networks:
     driver: bridge
   kafka-net:
     driver: bridge
-  scrapper-net:
+  scraper-net:
     driver: bridge
   builder-net:
     driver: bridge
