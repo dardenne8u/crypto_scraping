@@ -26,6 +26,7 @@ services:
       - "dbvol:/dev/shm"
     networks:
       - db-net
+      - kafka-net
 
   adminer:
     image: adminer
@@ -40,7 +41,6 @@ services:
     container_name: kafka-1
     networks:
       - kafka-net
-      - db-net
     ports:
       - "9092:9092"
     environment:
@@ -59,7 +59,6 @@ services:
     container_name: kafka-2
     networks:
       - kafka-net
-      - db-net
     ports:
       - "9093:9093"
     environment:
@@ -78,7 +77,6 @@ services:
     container_name: kafka-3
     networks:
       - kafka-net
-      - db-net
     ports:
       - "9094:9094"
     environment:
