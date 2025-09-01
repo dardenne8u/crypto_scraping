@@ -1,50 +1,39 @@
 from kafka import KafkaProducer, KafkaAdminClient
-from kafka.errors import TopicAlreadyExistsError
+from kafka.admin import NewTopic
 import time
 
 def send_message_to_kafka(topic_name, message, bootstrap_servers):
+    producer = None
     try:
         admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
         topics = admin_client.list_topics()
-        # Check if the topic exists
+        
+        # Vérifier si le topic existe, sinon le créer
         if topic_name in topics:
             print(f"Topic '{topic_name}' exists.")
         else:
             print(f"Topic '{topic_name}' does not exist.")
-            #Create topic if it does not exist
-            # raise Exception(f"Topic '{topic_name}' does not exist. Please create it manually.")
-
-        # Initialize KafkaProducer
-        producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
+            topic = NewTopic(name=topic_name, num_partitions=1, replication_factor=1)
+            admin_client.create_topics([topic])
+            print(f"Topic '{topic_name}' created successfully.")
         
-        # Send message to the specified topic
+        # Initialiser KafkaProducer avec version API explicite
+        producer = KafkaProducer(bootstrap_servers=bootstrap_servers, api_version=(2, 8, 0))
+        
+        # Envoyer le message
         producer.send(topic_name, message.encode('utf-8'))
         print(f"Sent: {message}")
         
-        # Wait to ensure the message is sent before closing
-        time.sleep(2)
-        
-        # Ensure the producer sends all messages
+        # Assurer l'envoi avant la fermeture
         producer.flush()
+        time.sleep(2)
 
     except Exception as e:
         print(f"Error: {e}")
 
     finally:
-        # Close the producer connection
-        producer.close()
+        if producer is not None:
+            producer.close()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    send_message_to_kafka('data_scraper', 'Votre message ici', 'kafka-1:19092')
