@@ -29,9 +29,9 @@ services:
       target: dev
       dockerfile: Dockerfile
     volumes:
-        - ./frontend:/app
-        - /app/node_modules
-        - /app/.next
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     ports:
       - "3000:3000"
     networks:
@@ -135,7 +135,6 @@ services:
       CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
     volumes:
       - kafka-data3:/var/lib/kafka/data
-
 
 volumes:
   dbvol:

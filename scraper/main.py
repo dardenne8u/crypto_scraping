@@ -3,28 +3,25 @@ import time
 from fetch_data import fetch_coinmarketcap_data
 from export_data import send_message_to_kafka
 
-#TODO: remove condition to break infinite loop and think about a better way to stop the script
+
 def main():
-    i=0
-    while True:  # /!\ 
-        waitNumber = random.randint(1, 5)
-        print(waitNumber)
-        time.sleep(waitNumber)
-        result = "Message TEST"
+    max_iterations = 3
+    for _ in range(max_iterations):
+        wait_seconds = random.randint(1, 5)
+        print(f"Waiting for {wait_seconds} seconds...")
+        time.sleep(wait_seconds)
+
+        # Pour récupérer les données depuis CoinMarketCap 
         # result = fetch_coinmarketcap_data()
-        # print(result)
+        
+        # Message de test
+        result = "Message TEST"
+        print(f"Sending message: {result}")
 
-        send_message_to_kafka('data_scraper', result,'kafka-1:19092')
+        send_message_to_kafka(topic_name='data_scraper', message=result, bootstrap_servers='kafka-1:19092')
 
+    print("Script ended after fixed iterations. Consider implementing a graceful shutdown.")
 
-        if i < 3:
-            i += 1
-        else:
-            break
 
 if __name__ == "__main__":
     main()
-    
-
-
-
