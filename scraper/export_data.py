@@ -17,15 +17,23 @@ def ensure_topic_exists(admin_client, topic_name):
 def send_message_to_kafka(topic_name, message, bootstrap_servers):
     producer = None
     try:
-        admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
-        ensure_topic_exists(admin_client, topic_name)
+        for server in bootstrap_servers:
+            if server is None:
+                raise ValueError("One or more Kafka broker addresses are not set in environment variables.")
+            else:
+                print(f"Kafka broker '{server}' is available.")
+                admin_client = KafkaAdminClient(bootstrap_servers=server)
+                ensure_topic_exists(admin_client, topic_name)
 
-        producer = KafkaProducer(bootstrap_servers=bootstrap_servers, api_version=(2, 8, 0))
-        producer.send(topic_name, message.encode('utf-8'))
-        print(f"Sent: {message}")
+                producer = KafkaProducer(bootstrap_servers=server, api_version=(2, 8, 0))
+                future = producer.send(topic_name, message.encode('utf-8'))
+                result = future.get(timeout=10) 
 
-        producer.flush()
-        time.sleep(2)
+                print(f"Sent: {message} to broker: {server}")
+                producer.flush()
+                time.sleep(2)
+
+                break
 
     except Exception as e:
         print(f"Error sending message to Kafka: {e}")
@@ -33,7 +41,3 @@ def send_message_to_kafka(topic_name, message, bootstrap_servers):
     finally:
         if producer:
             producer.close()
-
-
-if __name__ == "__main__":
-    send_message_to_kafka('data_scraper', 'Votre message ici', 'kafka-1:19092')

@@ -1,9 +1,10 @@
 import random
 import time
+import os
 from fetch_data import fetch_coinmarketcap_data
 from export_data import send_message_to_kafka
-from datetime import datetime
-import os
+
+BrokerKafka = [os.getenv("KAFKA_BROKER_1"), os.getenv("KAFKA_BROKER_2"), os.getenv("KAFKA_BROKER_3")]
 
 def main():
     # Load environment variables
