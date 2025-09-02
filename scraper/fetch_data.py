@@ -4,20 +4,25 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
 import os
+import tempfile
 
 def fetch_coinmarketcap_data():
 
     scraping_url = os.getenv('ScrapingURL', 'https://coinmarketcap.com/')
     maxScrolls = int(os.getenv('MaxScrolls', 30))
-    scrollPauseTime = int(os.getenv('ScrollPauseTime', 0.5))
+    scrollPauseTime = float(os.getenv('ScrollPauseTime', 0.5))
     scrollLocationMin = int(os.getenv('ScrollLocationMin', 0))
     scrollLocationMax = int(os.getenv('ScrollLocationMax', 300))
     loadingTime = int(os.getenv('LoadingTime', 1))
 
+    user_data_dir = tempfile.mkdtemp()
+
     # Set up Chrome options for the web driver
     options = Options()
-    options.headless = False  # Run browser in visible mode (set to True for headless mode)
-    options.add_argument("--window-size=1920,1200")  # Set browser window size
+    options.add_argument("--headless")  # Run Chrome in headless mode
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
     # Initialize Chrome driver with specified options
     driver = webdriver.Chrome(options=options)

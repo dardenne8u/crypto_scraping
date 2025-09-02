@@ -3,6 +3,9 @@ services:
     build: ./scraper
     container_name: scraper
     restart: unless-stopped
+    shm_size: 2g
+    environment:
+      - SE_OFFLINE="true"
     networks:
       - kafka-net
       - scraper-net

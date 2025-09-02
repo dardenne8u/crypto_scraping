@@ -17,6 +17,7 @@ def ensure_topic_exists(admin_client, topic_name):
 
 def send_message_to_kafka(topic_name, message, bootstrap_servers):
     producer = None
+    exist = False
     try:
         for server in bootstrap_servers:
             if server is None:
@@ -24,12 +25,13 @@ def send_message_to_kafka(topic_name, message, bootstrap_servers):
             else:
                 print(f"Kafka broker '{server}' is available.")
 
-                try:
-                    admin_client = KafkaAdminClient(bootstrap_servers=server)
-                    ensure_topic_exists(admin_client, topic_name)
-
-                except Exception as e:
-                    print(f"Failed to ensure topic exists on Kafka broker '{server}': {e}")
+                if not exist:
+                    try:
+                        admin_client = KafkaAdminClient(bootstrap_servers=server)
+                        ensure_topic_exists(admin_client, topic_name)
+                        exist = True
+                    except Exception as e:
+                        print(f"Failed to ensure topic exists on Kafka broker '{server}': {e}")
 
                 try:
                     producer = KafkaProducer(bootstrap_servers=server, api_version=(2, 8, 0))
