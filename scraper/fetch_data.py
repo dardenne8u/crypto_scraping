@@ -67,8 +67,7 @@ def fetch_coinmarketcap_data():
         # Loop through each <td> in the row
         for td in td_elements:
             text = td.get_text(strip=True)
-            cleaned_text = text.replace("\xa0", "").replace("\u202f", "")
-            table_data.append(cleaned_text)
+            table_data.append(text)
         
         # Only append rows with valid data (non-empty cells)
         if table_data:
