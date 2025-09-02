@@ -10,6 +10,8 @@ services:
       - kafka-1
       - kafka-2
       - kafka-3
+    env_file:
+      - ./scraper/.env
 
   builder:
     build: ./builder
