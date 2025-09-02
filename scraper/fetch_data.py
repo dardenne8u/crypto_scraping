@@ -2,10 +2,17 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
-from tabulate import tabulate
 import time
+import os
 
-def fetch_coinmarketcap_data(scraping_url, maxScrolls ,scrollPauseTime, scrollLocationMin, scrollLocationMax, loadingTime):
+def fetch_coinmarketcap_data():
+
+    scraping_url = os.getenv('ScrapingURL', 'https://coinmarketcap.com/')
+    maxScrolls = int(os.getenv('MaxScrolls', 30))
+    scrollPauseTime = int(os.getenv('ScrollPauseTime', 0.5))
+    scrollLocationMin = int(os.getenv('ScrollLocationMin', 0))
+    scrollLocationMax = int(os.getenv('ScrollLocationMax', 300))
+    loadingTime = int(os.getenv('LoadingTime', 1))
 
     # Set up Chrome options for the web driver
     options = Options()

@@ -1,6 +1,7 @@
 from kafka import KafkaProducer, KafkaAdminClient
 from kafka.admin import NewTopic
 import time
+import json
 
 
 def ensure_topic_exists(admin_client, topic_name):
@@ -22,14 +23,24 @@ def send_message_to_kafka(topic_name, message, bootstrap_servers):
                 raise ValueError("One or more Kafka broker addresses are not set in environment variables.")
             else:
                 print(f"Kafka broker '{server}' is available.")
-                admin_client = KafkaAdminClient(bootstrap_servers=server)
-                ensure_topic_exists(admin_client, topic_name)
 
-                producer = KafkaProducer(bootstrap_servers=server, api_version=(2, 8, 0))
-                future = producer.send(topic_name, message.encode('utf-8'))
-                result = future.get(timeout=10) 
+                try:
+                    admin_client = KafkaAdminClient(bootstrap_servers=server)
+                    ensure_topic_exists(admin_client, topic_name)
 
-                print(f"Sent: {message} to broker: {server}")
+                except Exception as e:
+                    print(f"Failed to ensure topic exists on Kafka broker '{server}': {e}")
+
+                try:
+                    producer = KafkaProducer(bootstrap_servers=server, api_version=(2, 8, 0))
+                    message_bytes = json.dumps(message).encode('utf-8')
+                    future = producer.send(topic_name, message_bytes)
+                    future.get(timeout=10)  # Block until a single message is sent (or timeout)
+
+                except Exception as e:
+                    print(f"Failed to send message to Kafka broker '{server}': {e}")
+                    continue
+
                 producer.flush()
                 time.sleep(2)
 
