@@ -10,7 +10,7 @@ def main():
     # Load environment variables with default values
     min_wait = int(os.getenv('RandomWaitMin', 5))
     max_wait = int(os.getenv('RandomWaitMax', 10)) 
-    topic_name = os.getenv('TopicName', 'scraper_data')
+    topic_name = os.getenv('TopicName', 'data_scraper')
 
 
     if min_wait is None or max_wait is None:
