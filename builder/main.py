@@ -1,10 +1,9 @@
 from kafka import KafkaConsumer
 
 
-try:
-    consumer = KafkaConsumer('data_scaper', bootstrap_server=['localhost:9092'])
-    for message in consumer:
-        print(message)
-except:
-    print("erreur connect")
+consumer = KafkaConsumer('data_scraper', bootstrap_servers=['kafka-1:19092'])
+print("me")
+for message in consumer:
+    print(message)
+
 
