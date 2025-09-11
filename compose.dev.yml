@@ -22,6 +22,8 @@ services:
       - kafka-1
       - kafka-2
       - kafka-3
+    environment:
+      SERVERS: '["kafka-1:19092", "kafka-2:19093", "kafka-3:19094"]'
 
   frontend:
     build:
