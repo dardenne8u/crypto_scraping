@@ -3,6 +3,9 @@ services:
     build: ./scraper
     container_name: scraper
     restart: unless-stopped
+    shm_size: 2g
+    environment:
+      - SE_OFFLINE="true"
     networks:
       - kafka-net
       - scraper-net
@@ -10,6 +13,8 @@ services:
       - kafka-1
       - kafka-2
       - kafka-3
+    env_file:
+      - ./scraper/.env
 
   builder:
     build: ./builder
@@ -30,9 +35,9 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     volumes:
-        - ./frontend:/app
-        - /app/node_modules
-        - /app/.next
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     ports:
       - "3000:3000"
     networks:
