@@ -2,29 +2,41 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
-from tabulate import tabulate
 import time
+import os
+import tempfile
 
 def fetch_coinmarketcap_data():
 
+    scraping_url = os.getenv('ScrapingURL', 'https://coinmarketcap.com/')
+    maxScrolls = int(os.getenv('MaxScrolls', 30))
+    scrollPauseTime = float(os.getenv('ScrollPauseTime', 0.5))
+    scrollLocationMin = int(os.getenv('ScrollLocationMin', 0))
+    scrollLocationMax = int(os.getenv('ScrollLocationMax', 300))
+    loadingTime = int(os.getenv('LoadingTime', 1))
+
+    user_data_dir = tempfile.mkdtemp()
+
     # Set up Chrome options for the web driver
     options = Options()
-    options.headless = False  # Run browser in visible mode (set to True for headless mode)
-    options.add_argument("--window-size=1920,1200")  # Set browser window size
+    options.add_argument("--headless")  # Run Chrome in headless mode
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
     # Initialize Chrome driver with specified options
     driver = webdriver.Chrome(options=options)
 
     # Open the CoinMarketCap website
-    driver.get("https://coinmarketcap.com/fr/") 
+    driver.get(scraping_url) 
 
-    # Scroll down the page 17 times to load more content
-    for i in range(30):  
-        driver.execute_script("window.scrollBy(0, 300);") 
-        time.sleep(0.5)  
+    # Scroll down the page 30 times to load more content
+    for i in range(maxScrolls):  
+        driver.execute_script(f"window.scrollBy({scrollLocationMin}, {scrollLocationMax});") 
+        time.sleep(scrollPauseTime)  
 
     # Wait for the page to load
-    time.sleep(1)
+    time.sleep(loadingTime)
 
     # Get the page's HTML content
     html = driver.page_source
@@ -37,7 +49,6 @@ def fetch_coinmarketcap_data():
 
 
     #------- Extract Header Data -------#
-
     # Find all <th> elements in the <thead>
     th_elements = soup.find_all('th')
 
@@ -45,12 +56,10 @@ def fetch_coinmarketcap_data():
     # Loop through each <th> element and extract its text
     for th in th_elements:
         text = th.get_text(strip=True)
-        cleaned_text = text.replace("\xa0", "")
-        header_data.append(cleaned_text)
+        header_data.append(text)
 
 
     #------- Extract Table Data -------#
-
     # Find all <tr> elements, which represent rows in the table
     tr_elements = soup.find_all('tr')
 
@@ -63,12 +72,12 @@ def fetch_coinmarketcap_data():
         # Loop through each <td> in the row
         for td in td_elements:
             text = td.get_text(strip=True)
-            cleaned_text = text.replace("\xa0", "").replace("\u202f", "")
-            table_data.append(cleaned_text)
+            table_data.append(text)
         
         # Only append rows with valid data (non-empty cells)
         if table_data:
             table_row.append(table_data)
 
-    # Format and return the data as a table using tabulate
-    return tabulate(table_row, headers=header_data, tablefmt="grid")
+    return [header_data, table_row]
+
+
