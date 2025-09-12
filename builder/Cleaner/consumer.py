@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 import json
+import time
 
 @dataclass
 class BaseConsumer:
@@ -35,6 +36,7 @@ class BaseConsumer:
                         {"type": "float", "field": "hourly_variance"},
                         {"type": "float", "field": "daily_variance"},
                         {"type": "float", "field": "weekly_variance"}
+                        {"type": "timestamp", "field": "date"}
                     ],
                     "optional": False,
                     "name": "Crypto"
@@ -44,7 +46,8 @@ class BaseConsumer:
                     "price": self.price,
                     "hourly_variance": self.hourly_variance,
                     "daily_variance": self.daily_variance,
-                    "weekly_variance": self.weekly_variance
+                    "weekly_variance": self.weekly_variance,
+                    "date":  time.time()
                 }
             }
             return json.dumps(objet).encode("UTF-8")
