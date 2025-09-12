@@ -8,16 +8,21 @@ import { CryptoTable } from "@/components/crypto-table"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, TrendingUp } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 export default function CryptoDashboard() {
   const [cryptocurrencies, setCryptocurrencies] = useState<CryptoCurrency[]>([])
   const [marketData, setMarketData] = useState<MarketData | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   const loadData = async () => {
     try {
-      const [cryptoData, globalData] = await Promise.all([fetchCryptocurrencies(1, 100), fetchGlobalMarketData()])
+      const [cryptoData, globalData] = await Promise.all([
+        fetchCryptocurrencies(1, 100),
+        fetchGlobalMarketData(),
+      ])
 
       setCryptocurrencies(cryptoData)
       setMarketData(globalData)
@@ -36,41 +41,57 @@ export default function CryptoDashboard() {
 
   useEffect(() => {
     loadData()
-
-    // Auto-refresh every 60 seconds
-    const interval = setInterval(loadData, 60000)
-    return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    if (loading) {
+      let interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval)
+            return 100
+          }
+          return prev + 5
+        })
+      }, 100)
+
+      return () => clearInterval(interval)
+    }
+  }, [loading])
+
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 bg-muted rounded animate-pulse"></div>
-              <div className="h-8 w-48 bg-muted rounded animate-pulse"></div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="h-10 w-24 bg-muted rounded animate-pulse"></div>
-              <ThemeToggle />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-card rounded-lg border animate-pulse"></div>
-            ))}
-          </div>
-
-          <div className="h-96 bg-card rounded-lg border animate-pulse"></div>
+      <div className="min-h-screen bg-background bg-gray-100 flex flex-col items-center justify-center space-y-6">
+        {/* Spinner with shadcn style */}
+        <div className="flex flex-col items-center space-y-3">
+          <Loader2 className="h-12 w-12 text-primary animate-spin" />
+          <h1 className="text-2xl font-bold tracking-tight">Loading Dashboard...</h1>
         </div>
+
+        {/* Progress bar */}
+        <div className="w-3/4 md:w-1/2 h-4 bg-muted rounded-full overflow-hidden shadow-sm">
+          <div
+            className="h-full bg-primary transition-all duration-200"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
+        {/* Iterative step text */}
+        <p className="mt-2 text-muted-foreground text-sm">
+          {progress < 30 && "Fetching cryptocurrencies..."}
+          {progress >= 30 && progress < 70 && "Fetching global market data..."}
+          {progress >= 70 && progress < 100 && "Almost there..."}
+          {progress === 100 && "Ready!"}
+        </p>
       </div>
     )
   }
 
+
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background bg-gray-100 dark:bg-neutral-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -100,7 +121,9 @@ export default function CryptoDashboard() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold">Market Overview</h2>
-            <div className="text-sm text-muted-foreground">Showing top {cryptocurrencies.length} cryptocurrencies</div>
+            <div className="text-sm text-muted-foreground">
+              Showing top {cryptocurrencies.length} cryptocurrencies
+            </div>
           </div>
 
           <CryptoTable cryptocurrencies={cryptocurrencies} />

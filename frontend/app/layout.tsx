@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "Crypto Dashboard",
   description: "Real-time cryptocurrency market data and analytics",
   generator: "v0.app",
+  icons: {
+    icon: "/usdt.png",
+  }
 }
 
 export default function RootLayout({
