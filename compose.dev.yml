@@ -163,12 +163,15 @@ services:
       CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
       CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
       CONNECT_PLUGIN_PATH: "/usr/share/confluent-hub-components"
       CONNECT_JDBC_CONNECTION_URL: "jdbc:postgresql://db:5432/${DB_NAME}"
       CONNECT_JDBC_USERNAME: "${DB_USER}"
       CONNECT_JDBC_PASSWORD: "${DB_PASSWORD}"
+      CONNECTOR_CONFIG_DIR: "/etc/kafka-connect/connectors"
+    volumes:
+      - ./kafkaConnect:/etc/kafka-connect/connectors
     depends_on:
       - kafka-1
       - kafka-2
