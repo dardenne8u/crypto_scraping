@@ -36,7 +36,7 @@ class BaseConsumer:
                         {"type": "float", "field": "hourly_variance"},
                         {"type": "float", "field": "daily_variance"},
                         {"type": "float", "field": "weekly_variance"},
-                        {"type": "timestamp", "field": "date"}
+                        {"type": "int", "field": "date"}
                     ],
                     "optional": False,
                     "name": "Crypto"
@@ -47,7 +47,7 @@ class BaseConsumer:
                     "hourly_variance": self.hourly_variance,
                     "daily_variance": self.daily_variance,
                     "weekly_variance": self.weekly_variance,
-                    "date":  time.time()
+                    "date":  int(time.time())
                 }
             }
             return json.dumps(objet).encode("UTF-8")
