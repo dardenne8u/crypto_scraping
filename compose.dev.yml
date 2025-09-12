@@ -58,7 +58,7 @@ services:
       - db
 
   db:
-    image: postgres
+    image: timescale/timescaledb:latest-pg17
     container_name: db
     restart: always
     environment:
@@ -164,6 +164,9 @@ services:
       CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_PLUGIN_PATH: "/usr/share/confluent-hub-components"
+      CONNECT_JDBC_CONNECTION_URL: "jdbc:postgresql://db:5432/${DB_NAME}"
+      CONNECT_JDBC_USERNAME: "${DB_USER}"
+      CONNECT_JDBC_PASSWORD: "${DB_PASSWORD}"
     depends_on:
       - kafka-1
       - kafka-2

@@ -1,0 +1,19 @@
+{
+  "name": "data-scraper-test",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "topics": "data_scraper",
+    "connection.url": "jdbc:postgresql://db:5432/kafka",
+    "connection.user": "tech",
+    "connection.password": "tech",
+    "auto.create": "true",
+    "insert.mode": "insert",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "pk.mode": "record_value",
+    "pk.fields": "id",
+    "delete.enabled": "false"
+  }
+}
