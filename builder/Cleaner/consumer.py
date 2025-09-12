@@ -35,7 +35,7 @@ class BaseConsumer:
                         {"type": "float", "field": "price"},
                         {"type": "float", "field": "hourly_variance"},
                         {"type": "float", "field": "daily_variance"},
-                        {"type": "float", "field": "weekly_variance"}
+                        {"type": "float", "field": "weekly_variance"},
                         {"type": "timestamp", "field": "date"}
                     ],
                     "optional": False,
