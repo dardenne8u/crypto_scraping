@@ -36,7 +36,7 @@ class BaseConsumer:
                         {"type": "float", "field": "hourly_variance"},
                         {"type": "float", "field": "daily_variance"},
                         {"type": "float", "field": "weekly_variance"},
-                        {"type": "int", "field": "date"}
+                        {"type": "int64", "field": "date"}
                     ],
                     "optional": False,
                     "name": "Crypto"
