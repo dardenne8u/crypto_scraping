@@ -20,7 +20,6 @@ import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, Dr
 
 // 🔹 Schema adapted for crypto data.json
 export const schema = z.object({
-  id: z.number(),
   name: z.string(),
   price: z.number(),
   hourly_variance: z.number(),
@@ -133,7 +132,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 // 🔹 Row with drag & drop
 function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
+    id: row.original.name, // 👈 use name instead of id
   })
 
   return (
@@ -162,18 +161,18 @@ export function DataTable({
 }: {
   data: z.infer<typeof schema>[]
 }) {
-  const [data, setData] = React.useState(() => initialData)
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+  const [data, setData] = React.useState(() =>
+    Array.isArray(initialData) ? initialData : []
   )
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
   })
+
 
   const sortableId = React.useId()
   const sensors = useSensors(
@@ -183,7 +182,7 @@ export function DataTable({
   )
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
+    () => data?.map(({ name }) => name) || [],
     [data]
   )
 
@@ -221,6 +220,7 @@ export function DataTable({
       })
     }
   }
+
 
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">

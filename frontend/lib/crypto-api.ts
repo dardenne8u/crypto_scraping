@@ -1,6 +1,26 @@
-import type { CryptoCurrency, MarketData } from "@/types/crypto"
-
+import type { CryptoData, CryptoCurrency, MarketData } from "@/types/crypto"
+import data from "@/app/data.json"
 const COINGECKO_API_BASE = "https://api.coingecko.com/api/v3"
+
+
+export async function fetchCryptoData(): Promise<CryptoData[]> {
+  try {
+    const response = await fetch("/api/crypto-data")
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error("Error fetching crypto data:", error)
+    return []
+  }
+}
+
+
+
 
 export async function fetchCryptocurrencies(page = 1, perPage = 100): Promise<CryptoCurrency[]> {
   try {

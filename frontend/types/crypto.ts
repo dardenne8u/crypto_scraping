@@ -38,3 +38,11 @@ export interface MarketData {
   market_cap_percentage: { [key: string]: number }
   market_cap_change_percentage_24h_usd: number
 }
+
+export interface CryptoData {
+  name: string
+  hourly_varience: string
+  daily_varience: number
+  weekly_varience: number
+  date: number
+}
