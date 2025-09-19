@@ -58,6 +58,8 @@ services:
       - db-net
     depends_on:
       - db
+    environment:
+      SERVERS: '["kafka-1:19092", "kafka-2:19093", "kafka-3:19094"]'
 
   db:
     image: timescale/timescaledb:latest-pg17
