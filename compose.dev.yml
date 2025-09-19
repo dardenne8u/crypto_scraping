@@ -51,6 +51,11 @@ services:
       dockerfile: Dockerfile
     container_name: backend
     restart: unless-stopped
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PWD: ${DB_PWD}
+      DB_URL: db
     ports:
       - "9000:9000"
     networks:
