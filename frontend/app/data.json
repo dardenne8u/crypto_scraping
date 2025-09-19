@@ -1,0 +1,98 @@
+[
+  {
+    "name": "Ethereum Name ServiceENS",
+    "price": 24.08,
+    "hourly_variance": 0.66,
+    "daily_variance": 0.18,
+    "weekly_variance": 6.37,
+    "date": 1757680680
+  },
+  {
+    "name": "SonicS",
+    "price": 0.3065,
+    "hourly_variance": 0.58,
+    "daily_variance": 2.45,
+    "weekly_variance": 0.83,
+    "date": 1757680680
+  },
+  {
+    "name": "PancakeSwapCAKE",
+    "price": 2.53,
+    "hourly_variance": 0.3,
+    "daily_variance": 0.68,
+    "weekly_variance": 5.78,
+    "date": 1757680680
+  },
+  {
+    "name": "FartcoinFARTCOIN",
+    "price": 0.8687,
+    "hourly_variance": 2.68,
+    "daily_variance": 0.35,
+    "weekly_variance": 13.81,
+    "date": 1757680680
+  },
+  {
+    "name": "PendlePENDLE",
+    "price": 5.15,
+    "hourly_variance": 0.62,
+    "daily_variance": 3.89,
+    "weekly_variance": 8.85,
+    "date": 1757680680
+  },
+  {
+    "name": "NexoNEXO",
+    "price": 1.29,
+    "hourly_variance": 0.4,
+    "daily_variance": 0.31,
+    "weekly_variance": 0.56,
+    "date": 1757680680
+  },
+  {
+    "name": "Virtuals ProtocolVIRTUAL",
+    "price": 1.27,
+    "hourly_variance": 0.39,
+    "daily_variance": 2.65,
+    "weekly_variance": 15.09,
+    "date": 1757680680
+  },
+  {
+    "name": "Theta NetworkTHETA",
+    "price": 0.8236,
+    "hourly_variance": 0.58,
+    "daily_variance": 0.11,
+    "weekly_variance": 3.77,
+    "date": 1757680680
+  },
+  {
+    "name": "TezosXTZ",
+    "price": 0.7646,
+    "hourly_variance": 1.61,
+    "daily_variance": 4.24,
+    "weekly_variance": 5.43,
+    "date": 1757680680
+  },
+  {
+    "name": "GalaGALA",
+    "price": 0.01744,
+    "hourly_variance": 0.99,
+    "daily_variance": 1.87,
+    "weekly_variance": 7.16,
+    "date": 1757680680
+  },
+  {
+    "name": "IOTAIOTA",
+    "price": 0.194,
+    "hourly_variance": 0.33,
+    "daily_variance": 0.31,
+    "weekly_variance": 3.84,
+    "date": 1757680680
+  },
+  {
+    "name": "ZcashZEC",
+    "price": 47.64,
+    "hourly_variance": 0.26,
+    "daily_variance": 0.75,
+    "weekly_variance": 15.49,
+    "date": 1757680680
+  }
+]
