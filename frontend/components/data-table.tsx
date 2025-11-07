@@ -1,24 +1,85 @@
 "use client"
-import * as React from "react";
-import { closestCenter, DndContext, KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent, type UniqueIdentifier } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { IconDotsVertical, IconGripVertical } from "@tabler/icons-react";
-import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Row, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table";
-import { z } from "zod";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 
+import * as React from "react"
 
-// 🔹 Schema adapted for crypto data.json
+// 🔹 DnD Kit
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type UniqueIdentifier,
+} from "@dnd-kit/core"
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+
+// 🔹 UI & Icons
+import { IconDotsVertical, IconGripVertical } from "@tabler/icons-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+
+// 🔹 Tanstack Table
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  Row,
+  SortingState,
+  useReactTable,
+  VisibilityState,
+} from "@tanstack/react-table"
+
+// 🔹 Others
+import { z } from "zod"
+import { useIsMobile } from "@/hooks/use-mobile"
+
+// ============================================================================
+// 🔹 Schema
+// ============================================================================
 export const schema = z.object({
   name: z.string(),
   price: z.number(),
@@ -28,7 +89,9 @@ export const schema = z.object({
   date: z.number(),
 })
 
-// 🔹 Drag handle for reordering
+// ============================================================================
+// 🔹 Drag Handle
+// ============================================================================
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({ id })
   return (
@@ -44,15 +107,15 @@ function DragHandle({ id }: { id: number }) {
   )
 }
 
-// 🔹 Columns adapted for crypto table
+// ============================================================================
+// 🔹 Columns
+// ============================================================================
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "name",
     header: "Token",
     cell: ({ row }) => (
-      <div className="pl-2">
-        <TableCellViewer item={row.original} />
-      </div>
+      <div className="pl-2">{row.original.name}</div>
     ),
   },
   {
@@ -104,46 +167,38 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
       </Badge>
     ),
   },
-  {
-    id: "actions",
-    cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
 ]
 
-// 🔹 Row with drag & drop
+// ============================================================================
+// 🔹 Draggable Row
+// ============================================================================
 function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.name, // 👈 use name instead of id
+    id: row.original.name,
   })
+  const [isClicked, setIsClicked] = React.useState(false)
+
+  function handleClick() {
+    console.log(row.original.name)
+    setIsClicked(true)
+    setTimeout(() => setIsClicked(false), 150)
+  }
 
   return (
     <TableRow
+      ref={setNodeRef}
       data-state={row.getIsSelected() && "selected"}
       data-dragging={isDragging}
-      ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      onClick={handleClick}
+      className={`
+        relative z-0 cursor-pointer transition-all
+        data-[dragging=true]:z-10 data-[dragging=true]:opacity-80
+        hover:bg-muted/60 active:scale-[0.99]
+        ${isClicked ? "bg-muted/80" : ""}
+      `}
       style={{
         transform: CSS.Transform.toString(transform),
-        transition: transition,
+        transition,
       }}
     >
       {row.getVisibleCells().map((cell) => (
@@ -155,7 +210,9 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
   )
 }
 
-// 🔹 Main DataTable
+// ============================================================================
+// 🔹 DataTable Component
+// ============================================================================
 export function DataTable({
   data: initialData,
 }: {
@@ -164,17 +221,20 @@ export function DataTable({
   const [data, setData] = React.useState(() =>
     Array.isArray(initialData) ? initialData : []
   )
+
   const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({})
+  const [columnFilters, setColumnFilters] =
+    React.useState<ColumnFiltersState>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
   })
 
-
   const sortableId = React.useId()
+
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
@@ -221,7 +281,6 @@ export function DataTable({
     }
   }
 
-
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
       <TabsContent
@@ -230,11 +289,11 @@ export function DataTable({
       >
         <div className="overflow-hidden rounded-lg border">
           <DndContext
+            id={sortableId}
+            sensors={sensors}
             collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis]}
             onDragEnd={handleDragEnd}
-            sensors={sensors}
-            id={sortableId}
           >
             <Table>
               <TableHeader className="bg-muted sticky top-0 z-10">
@@ -253,6 +312,7 @@ export function DataTable({
                   </TableRow>
                 ))}
               </TableHeader>
+
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   <SortableContext
@@ -265,7 +325,10 @@ export function DataTable({
                   </SortableContext>
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
                       No results.
                     </TableCell>
                   </TableRow>
@@ -276,41 +339,5 @@ export function DataTable({
         </div>
       </TabsContent>
     </Tabs>
-  )
-}
-
-// 🔹 Drawer for token details
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
-  const isMobile = useIsMobile()
-
-  return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.name}
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>{item.name}</DrawerTitle>
-          <DrawerDescription>
-            Token details and recent performance
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="p-4 text-sm space-y-4">
-          <div>💰 Price: ${item.price}</div>
-          <div>📈 1h: {item.hourly_variance}%</div>
-          <div>📊 24h: {item.daily_variance}%</div>
-          <div>📆 7d: {item.weekly_variance}%</div>
-          <div>🕒 Date: {new Date(item.date * 1000).toLocaleString()}</div>
-          <Separator />
-        </div>
-        <DrawerFooter>
-          <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
   )
 }
