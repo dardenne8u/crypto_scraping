@@ -11,18 +11,13 @@ app = FastAPI()
 def on_startup():
     create_db()
 
-@app.get("/")
-def test():
-    return {"Hello": "World"}
-
-
 @app.websocket("/connect")
 async def connect(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         consumer = get_consumer()
         for message in consumer:
-            manager.send_broadcast("{data}")
+            manager.broadcast("{data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
