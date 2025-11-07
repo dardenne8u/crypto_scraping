@@ -32,7 +32,7 @@ import {
 
 export const description = "An interactive area chart"
 
-const chartData = [
+const rawChartData = [
   { date: "2024-04-01", desktop: 222, mobile: 150 },
   { date: "2024-04-02", desktop: 97, mobile: 180 },
   { date: "2024-04-03", desktop: 167, mobile: 120 },
@@ -125,6 +125,11 @@ const chartData = [
   { date: "2024-06-29", desktop: 103, mobile: 160 },
   { date: "2024-06-30", desktop: 446, mobile: 400 },
 ]
+
+const chartData = rawChartData.map((item) => ({
+  ...item,
+  date: new Date(item.date).getTime(),
+}))
 
 const chartConfig = {
   visitors: {

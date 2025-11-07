@@ -1,4 +1,7 @@
-from sqlmodel import SQLModel, create_engine, Session, Annotated, Depends
+from sqlmodel import SQLModel, create_engine, Session
+from typing import Annotated
+from fastapi import Depends
+
 import os
 
 _username = os.getenv("DB_USER")

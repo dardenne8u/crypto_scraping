@@ -54,7 +54,7 @@ services:
     environment:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
-      DB_PWD: ${DB_PWD}
+      DB_PWD: ${DB_PASSWORD}
       DB_URL: db
       SERVERS: '["kafka-1:19092", "kafka-2:19093", "kafka-3:19094"]'
     ports:

@@ -1,8 +1,8 @@
 from typing import List, Union
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect 
-from .socket_manager import ConnectionManager
-from .db import create_db, get_session
-from kafka import get_consumer 
+from socket_manager import ConnectionManager
+from db import create_db, get_session
+from kafka_utils import get_consumer 
 
 manager = ConnectionManager()
 app = FastAPI()
