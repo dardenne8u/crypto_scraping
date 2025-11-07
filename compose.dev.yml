@@ -62,6 +62,7 @@ services:
     networks:
       - app-net
       - db-net
+      - kafka-net
     depends_on:
       - db
 
