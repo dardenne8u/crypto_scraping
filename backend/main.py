@@ -2,7 +2,7 @@ from typing import List, Union
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect 
 from .socket_manager import ConnectionManager
 from .db import create_db
-from kafka import get_data_from_kafka 
+from kafka import get_consumer 
 
 manager = ConnectionManager()
 app = FastAPI()
@@ -20,12 +20,9 @@ def test():
 async def connect(websocket: WebSocket):
     await manager.connect(websocket)
     await manager.send_personal_message("Eh coucou", websocket)
-
     try:
-        while True:
-            data = get_data_from_kafka()
-            print(data) 
-            await manager.broadcast(f"{data}")
-
+        consumer = get_consumer()
+        for message in consumer:
+            manager.send_broadcast("{data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)

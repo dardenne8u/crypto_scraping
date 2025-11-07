@@ -15,12 +15,12 @@ def ensure_topic_exists(admin_client, topic_name):
         print(f"Topic '{topic_name}' does not exist")
 
 
-def get_data_from_kafka():
-    producer = KafkaProducer(bootstrap_servers=servers)
+def get_history(consumer):
+    pass 
+
+def get_consumer():
+    # producer = KafkaProducer(bootstrap_servers=servers)
     admin = KafkaAdminClient(bootstrap_servers=servers)
     ensure_topic_exists(admin, "clean_data")
     consumer = KafkaConsumer('clean_data', bootstrap_servers=servers)
-    for message in consumer:
-        data = json.loads(message.value)
-        print(data)
-        return data
+    return consumer 
