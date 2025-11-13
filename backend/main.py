@@ -17,7 +17,7 @@ async def connect(websocket: WebSocket):
     try:
         consumer = get_consumer()
         for message in consumer:
-            manager.broadcast("{data}")
+            await manager.broadcast("{data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
