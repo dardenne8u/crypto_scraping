@@ -15,6 +15,8 @@ services:
       - kafka-3
     env_file:
       - ./scraper/.env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   builder:
     build: ./builder
@@ -29,6 +31,8 @@ services:
       - kafka-3
     environment:
       SERVERS: '["kafka-1:19092", "kafka-2:19093", "kafka-3:19094"]'
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   frontend:
     build:
@@ -44,6 +48,8 @@ services:
       - "3000:3000"
     networks:
       - app-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   backend:
     build:
@@ -58,6 +64,8 @@ services:
       - db-net
     depends_on:
       - db
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   db:
     image: timescale/timescaledb:latest-pg17
@@ -76,6 +84,8 @@ services:
       - kafka-1
       - kafka-2
       - kafka-3
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   adminer:
     image: adminer
@@ -85,6 +95,8 @@ services:
       - 8080:8080
     networks:
       - db-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
@@ -106,6 +118,8 @@ services:
       CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
     volumes:
       - kafka-data1:/var/lib/kafka/data
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
@@ -127,6 +141,8 @@ services:
       CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
     volumes:
       - kafka-data2:/var/lib/kafka/data
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   kafka-3:
     image: confluentinc/cp-kafka:latest
@@ -148,6 +164,8 @@ services:
       CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
     volumes:
       - kafka-data3:/var/lib/kafka/data
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   kafka-connect:
     build: ./kafkaConnect
@@ -183,6 +201,8 @@ services:
       - kafka-2
       - kafka-3
       - db
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
 # --- Monitoring Services
 
@@ -200,6 +220,8 @@ services:
       - app-net
       - kafka-net
       - db-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   grafana:
     image: grafana/grafana:latest
@@ -218,6 +240,8 @@ services:
     networks:
       - app-net
       - db-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -227,6 +251,8 @@ services:
       - "9100:9100"
     networks:
       - app-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:latest
@@ -246,6 +272,8 @@ services:
       - kafka-3
     networks:
       - kafka-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
@@ -259,10 +287,43 @@ services:
       - db
     networks:
       - db-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
 
+# --- Traefik & watchtower
+
+  traefik:
+    image: "traefik:v3.4"
+    container_name: "traefik"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--entryPoints.web.address=:80"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+    ports:
+      - "80:80"
+      - "7000:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
 
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+# --- Volumes and Networks
 volumes:
   dbvol:
   kafka-data1:
@@ -281,4 +342,6 @@ networks:
   builder-net:
     driver: bridge
   db-net:
+    driver: bridge
+  proxy:
     driver: bridge
