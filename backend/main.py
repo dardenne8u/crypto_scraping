@@ -17,9 +17,12 @@ async def connect(websocket: WebSocket):
     try:
         consumer = get_consumer()
         for data in consumer:
+            print("Message en cours d'envoi")
             await manager.broadcast("{data}")
+            print("Message envoye")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+        print("Socket deconnecte")
 
 @app.get("/history")
 def history():
