@@ -38,9 +38,10 @@ def history():
 
 def kafka_listener(loop):
     consumer = get_consumer()
-    for data in consumer:
+    for message in consumer:
         print("Message en cours d'envoi", flush=True)
-        asyncio.run_coroutine_threadsafe(manager.broadcast(f"{data.value}"), loop)
+        data = message.value.decode("utf-8")
+        asyncio.run_coroutine_threadsafe(manager.broadcast(f"{data}"), loop)
         print("Message envoye", flush=True)
         
 
