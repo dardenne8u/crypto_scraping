@@ -1,8 +1,6 @@
 "use client"
 
 import * as React from "react"
-
-// 🔹 DnD Kit
 import {
   closestCenter,
   DndContext,
@@ -22,20 +20,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-
-// 🔹 UI & Icons
-import { IconDotsVertical, IconGripVertical } from "@tabler/icons-react"
+import { IconGripVertical } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
 import {
   Table,
   TableBody,
@@ -45,18 +32,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-
-// 🔹 Tanstack Table
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -72,10 +47,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
-
-// 🔹 Others
 import { z } from "zod"
-import { useIsMobile } from "@/hooks/use-mobile"
 
 // ============================================================================
 // 🔹 Schema
@@ -90,33 +62,13 @@ export const schema = z.object({
 })
 
 // ============================================================================
-// 🔹 Drag Handle
-// ============================================================================
-function DragHandle({ id }: { id: number }) {
-  const { attributes, listeners } = useSortable({ id })
-  return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent"
-    >
-      <IconGripVertical className="text-muted-foreground size-3" />
-    </Button>
-  )
-}
-
-// ============================================================================
 // 🔹 Columns
 // ============================================================================
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "name",
     header: "Token",
-    cell: ({ row }) => (
-      <div className="pl-2">{row.original.name}</div>
-    ),
+    cell: ({ row }) => <div className="pl-2">{row.original.name}</div>,
   },
   {
     accessorKey: "price",
@@ -172,15 +124,21 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 // ============================================================================
 // 🔹 Draggable Row
 // ============================================================================
-function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
+function DraggableRow({
+  row,
+  onSelectName,
+}: {
+  row: Row<z.infer<typeof schema>>
+  onSelectName?: (name: string) => void
+}) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.name,
   })
   const [isClicked, setIsClicked] = React.useState(false)
 
   function handleClick() {
-    console.log(row.original.name)
     setIsClicked(true)
+    onSelectName?.(row.original.name)
     setTimeout(() => setIsClicked(false), 150)
   }
 
@@ -215,8 +173,10 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 // ============================================================================
 export function DataTable({
   data: initialData,
+  onSelectName, // ✅ Nouvelle prop
 }: {
   data: z.infer<typeof schema>[]
+  onSelectName?: (name: string) => void
 }) {
   const [data, setData] = React.useState(() =>
     Array.isArray(initialData) ? initialData : []
@@ -320,7 +280,11 @@ export function DataTable({
                     strategy={verticalListSortingStrategy}
                   >
                     {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
+                      <DraggableRow
+                        key={row.id}
+                        row={row}
+                        onSelectName={onSelectName} // ✅ Passé ici
+                      />
                     ))}
                   </SortableContext>
                 ) : (

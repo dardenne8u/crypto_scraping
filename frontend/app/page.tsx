@@ -14,6 +14,8 @@ import { CryptoData } from '@/types/crypto'
 export default function Page() {
 
   const [messages, setMessages] = useState<CryptoData[]>([]);
+  const [selectedName, setSelectedName] = useState<string | null>(null)
+
   useEffect(() => {
     const socketInitializer = async () => {
       const socket = new WebSocket('ws://localhost:9000/connect');
@@ -38,6 +40,11 @@ export default function Page() {
     }
     socketInitializer()
   }, [])
+
+  const handleSelectName = (name: string) => {
+    console.log("Selected name:", name)
+    setSelectedName(name)
+  }
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -46,9 +53,9 @@ export default function Page() {
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
           {/* <SectionCards /> */}
           <div className="px-4 lg:px-6">
-            <ChartAreaInteractive />
+            <ChartAreaInteractive selectedName={selectedName} />
           </div>
-          <DataTable data={data} />
+          <DataTable data={data} onSelectName={handleSelectName} />
         </div>
       </div>
     </div>
