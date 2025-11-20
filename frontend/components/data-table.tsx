@@ -48,6 +48,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table"
 import { z } from "zod"
+import { CryptoData } from '@/types/crypto'
 
 // ============================================================================
 // 🔹 Schema
@@ -64,7 +65,7 @@ export const schema = z.object({
 // ============================================================================
 // 🔹 Columns
 // ============================================================================
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const columns: ColumnDef<CryptoData>[] = [
   {
     accessorKey: "name",
     header: "Token",
@@ -128,7 +129,7 @@ function DraggableRow({
   row,
   onSelectName,
 }: {
-  row: Row<z.infer<typeof schema>>
+  row: Row<CryptoData>
   onSelectName?: (name: string) => void
 }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -171,7 +172,7 @@ function DraggableRow({
 // ============================================================================
 // 🔹 DataTable Component
 // ============================================================================
-export function DataTable({ data: initialData,  onSelectName}: { data: z.infer<typeof schema>[] ,  onSelectName?: (name: string) => void }) {
+export function DataTable({ data: initialData,  onSelectName}: { data: CryptoData[] ,  onSelectName?: (name: string) => void }) {
   const data = Array.isArray(initialData) ? initialData : [];
 
 

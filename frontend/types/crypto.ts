@@ -40,9 +40,10 @@ export interface MarketData {
 }
 
 export interface CryptoData {
-  name: string
-  hourly_varience: string
-  daily_varience: number
-  weekly_varience: number
-  date: number
+  name: string;
+  price: number; 
+  hourly_variance: number;
+  daily_variance: number;
+  weekly_variance: number;
+  date: number;
 }

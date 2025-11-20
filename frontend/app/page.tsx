@@ -5,52 +5,87 @@ import { SectionCards } from '@/components/section-cards'
 import { SiteHeader } from '@/components/site-header'
 import { fetchCryptoData } from '@/lib/crypto-api'
 import { io, Socket } from 'socket.io-client'
-import data from './data.json'
 import { SetStateAction, useEffect, useState } from 'react'
 import { CryptoData } from '@/types/crypto'
 import { SearchBar } from "@/components/ui/search";
-
 
 export default function Page() {
   const [messages, setMessages] = useState<CryptoData[]>([]);
   const [selectedName, setSelectedName] = useState<string | null>(null);
   const [search, setSearch] = useState<string>("");
+
   const handleSearch = (query: string) => {
     setSearch(query);
-
   };
-  const filteredData = data.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+
   const handleSelectName = (name: string) => {
     console.log("Select Name:", name);
     setSelectedName(name);
   };
 
+  const filteredData = messages.filter((item) => {
+    if (!search) return true;
+    return item.name?.toLowerCase().includes(search.toLowerCase());
+  });
+
   useEffect(() => {
+    const socket = new WebSocket('ws://localhost:9000/connect');
     const socketInitializer = async () => {
-      const socket = new WebSocket('ws://localhost:9000/connect');
+      
+      
       socket.onopen = () => {
         console.log('connected')
+        socket.send("Hello Server");
       }
 
       socket.onmessage = (event) => {
         try {
-          console.log("Received message:", event.data);
-          const data: CryptoData = JSON.parse(event.data);
-          setMessages([data]);
+          const rawMessage = JSON.parse(event.data);
+          const newData: CryptoData = rawMessage.payload || rawMessage;
+
+          console.log("📦 Donnée extraite:", newData);
+
+          if (!newData || !newData.name || typeof newData.price !== 'number') {
+              console.warn("Donnée ignorée (payload invalide ou vide)", newData);
+              return; 
+          }
+
+          setMessages((prevMessages) => {
+            const index = prevMessages.findIndex((m) => m.name === newData.name);
+            console.log("Index trouvé:", index);
+
+            if (index !== -1) {
+              // Mise à jour
+              const updatedMessages = [...prevMessages];
+              updatedMessages[index] = newData; 
+              console.log("Mise à jour de la donnée:", newData);
+              return updatedMessages;
+            } else {
+              // Ajout
+              console.log("Ajout de la donnée:", newData);
+              return [...prevMessages, newData];
+            }
+          });
+
         } catch (err) {
           console.error("Error parsing message:", err);
         }
       };
 
-
       socket.onclose = () => {
-        console.log('disconnected')
+        console.log('disconnected');
       }
     }
     socketInitializer()
-  }, [])
+
+    return () => {
+      if (socket) {
+        console.log("Cleaning up socket...");
+        socket.close();
+      }
+    };
+  }, []) 
+
   return (
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
@@ -69,7 +104,10 @@ export default function Page() {
           </div>
 
           {/* Filter Table */}
-          <DataTable data={filteredData} onSelectName={handleSelectName} />
+          <div className="px-4 lg:px-6">
+             <DataTable data={filteredData} onSelectName={handleSelectName} />
+          </div>
+          
         </div>
       </div>
     </div>

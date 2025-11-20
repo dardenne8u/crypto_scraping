@@ -41,7 +41,11 @@ def kafka_listener(loop):
     for message in consumer:
         print("Message en cours d'envoi", flush=True)
         data = message.value.decode("utf-8")
-        asyncio.run_coroutine_threadsafe(manager.broadcast(f"{data}"), loop)
-        print("Message envoye", flush=True)
+        future = asyncio.run_coroutine_threadsafe(manager.broadcast(f"{data}"), loop)
+        try:
+            future.result(timeout=5) 
+            print("Message envoyé au WebSocket", flush=True)
+        except Exception as e:
+            print(f"ERREUR FATALE BROADCAST: {e}", flush=True)
         
 
