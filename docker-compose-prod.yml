@@ -266,6 +266,7 @@ services:
 
 volumes:
   dbvol:
+  db_data:
   kafka-data1:
   kafka-data2:
   kafka-data3:
