@@ -1,6 +1,7 @@
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import SQLModel, create_engine, Session, Field
 from typing import Annotated
 from fastapi import Depends
+
 
 import os
 
@@ -25,10 +26,11 @@ def get_session():
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
-class crypto(SQLModel, Table=True):
-    name: str
+class crypto(SQLModel, table=True):
+    __tablename__ = "clean_data"
+    name: str = Field(primary_key=True)
     price: float
     hourly_variance: float
     daily_variance: float
     weekly_variance: float
-    date: int
+    date: int = Field(primary_key=True)
