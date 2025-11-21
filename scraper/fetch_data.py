@@ -81,7 +81,6 @@ def fetch_coinmarketcap_data():
     # Parse the page's HTML using BeautifulSoup
     soup = BeautifulSoup(html, 'html.parser')
 
-
     #------- Extract Header Data -------#
     # Find all <th> elements in the <thead>
     th_elements = soup.find_all('th')
@@ -102,10 +101,26 @@ def fetch_coinmarketcap_data():
     for tr in tr_elements:
         td_elements = tr.find_all('td')
         table_data = []
-        
         # Loop through each <td> in the row
         for td in td_elements:
             text = td.get_text(strip=True)
+            name= td.find("p","coin-item-name")
+            if name:
+                text = name.get_text(strip=True)
+
+            inner_span = None
+            outer_span = td.find("span")
+            if outer_span:
+                inner_span = outer_span.find("span")
+
+            if inner_span:
+                span_classes=inner_span.get("class")
+                if span_classes:
+                    if "icon-Caret-up" in span_classes:
+                        text=text+"|UP"
+                    elif "icon-Caret-down" in span_classes:
+                        text=text+"|DOWN"
+            
             table_data.append(text)
         
         # Only append rows with valid data (non-empty cells)
