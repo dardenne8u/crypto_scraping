@@ -48,8 +48,14 @@ def hello():
     return "Hello World"
 
 @app.get("/history/{crypto_name}")
-def history(session: SessionDep, crypto_name: str):
+def history(session: SessionDep, crypto_name: str, date_debut:int|None = None, date_fin:int|None = None):
     query = select(crypto.price, crypto.date).where(crypto.name == crypto_name)
+    if (date_debut is not None):
+        query = query.where(crypto.date >= date_debut)
+
+    if (date_fin is not None):
+        query = query.where(crypto.date <= date_fin)
+    
     results = session.exec(query).all()
     return [
         {"price": row[0], "date": row[1]}
