@@ -1,6 +1,6 @@
 services:
   scraper:
-    build: ./scraper
+    image: onixsun/scraper:latest
     container_name: scraper
     restart: unless-stopped
     shm_size: 2g
@@ -19,7 +19,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   builder:
-    build: ./builder
+    image: onixsun/builder:latest
     container_name: builder
     restart: unless-stopped
     networks:
@@ -35,10 +35,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   frontend:
-    build:
-      context: ./frontend
-      target: dev
-      dockerfile: Dockerfile
+    image : onixsun/frontend:latest
     container_name: frontend
     volumes:
       - ./frontend:/app
@@ -52,9 +49,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: onixsun/backend:latest
     container_name: backend
     restart: unless-stopped
     ports:
@@ -320,8 +315,13 @@ services:
 
   watchtower:
     image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 60
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
 
 # --- Volumes and Networks
