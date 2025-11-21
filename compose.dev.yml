@@ -29,6 +29,19 @@ services:
       - kafka-3
     environment:
       SERVERS: '["kafka-1:19092", "kafka-2:19093", "kafka-3:19094"]'
+  connecteur:
+    build: ./connecteur
+    container_name: connecteur
+    restart: unless-stopped
+    networks:
+      - kafka-net
+      - db-net
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PWD: ${DB_PASSWORD}
+      DB_URL: db
+      SERVERS: '["kafka-1:19092", "kafka-2:19093", "kafka-3:19094"]'
 
   frontend:
     build:
@@ -153,42 +166,6 @@ services:
       CLUSTER_ID: "q1Sh-7qfT3S8zG8zYb9m2w"
     volumes:
       - kafka-data3:/var/lib/kafka/data
-
-  kafka-connect:
-    build: ./kafkaConnect
-    container_name: kafka-connect
-    networks:
-      - kafka-net
-      - db-net
-    ports:
-      - "8083:8083"
-    environment:
-      CONNECT_BOOTSTRAP_SERVERS: "kafka-1:19092,kafka-2:19093,kafka-3:19094"
-      CONNECT_REST_PORT: 8083
-      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
-      CONNECT_GROUP_ID: "kafka-connect-group"
-      CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
-      CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
-      CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
-      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
-      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
-      CONNECT_PLUGIN_PATH: "/usr/share/confluent-hub-components"
-      CONNECT_JDBC_CONNECTION_URL: "jdbc:postgresql://db:5432/${DB_NAME}"
-      CONNECT_JDBC_USERNAME: "${DB_USER}"
-      CONNECT_JDBC_PASSWORD: "${DB_PASSWORD}"
-      CONNECTOR_CONFIG_DIR: "/etc/kafka-connect/connectors"
-    entrypoint: ["/etc/kafka-connect/connectors/entrypoint.sh"]
-    volumes:
-      - ./kafkaConnect:/etc/kafka-connect/connectors
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
-      - db
-
-
 
 volumes:
   dbvol:
