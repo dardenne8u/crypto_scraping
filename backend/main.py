@@ -1,5 +1,6 @@
 from typing import List, Union
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends 
+from fastapi.middleware.cors import CORSMiddleware
 from socket_manager import ConnectionManager
 from db import create_db, get_session, crypto, SessionDep
 from kafka_utils import get_consumer
@@ -10,6 +11,20 @@ import threading
 
 manager = ConnectionManager()
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.on_event("startup")
 async def on_startup():
