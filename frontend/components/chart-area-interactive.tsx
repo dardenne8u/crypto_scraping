@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -55,89 +55,30 @@ export function ChartAreaInteractive({ selectedName }: ChartAreaInteractiveProps
     }
   }, [isMobile])
 
-  // 🧠 Simule un appel API pour récupérer les données historiques
   React.useEffect(() => {
-    if (!selectedName) return
-
-    const fetchFakeData = async () => {
-      setLoading(true)
-      await new Promise((r) => setTimeout(r, 800)) // Simule un délai réseau
-
-      // 🎯 Crée 90 jours de données factices
-      let basePrice = 100 + Math.random() * 100
-      const fakeData = Array.from({ length: 90 }, (_, i) => {
-        const date = new Date()
-        date.setDate(date.getDate() - (90 - i))
-        basePrice += (Math.random() - 0.5) * 5 // légère variation
-        return {
-          date: date.toISOString().split("T")[0],
-          price: +basePrice.toFixed(2),
-        }
-      })
-
-      setChartData(fakeData)
+    try {
+      fetch(`http://localhost:9000/history/${selectedName}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Données historiques récupérées:", data);
+          const formattedData = data.map((item: any) => ({
+            date: new Date(item.date * 1000).toISOString(), 
+            price: item.price,
+          }))
+          setChartData(formattedData)
+          setLoading(false)
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la récupération des données historiques:", error);
+          setLoading(false)
+        });
+    }
+    catch (error) {
+      console.error("Erreur inattendue:", error);
       setLoading(false)
     }
-
-    fetchFakeData()
   }, [selectedName])
 
-
-  // React.useEffect(() => {
-  //   if (!selectedName) return
-
-  //   const fetchData = async () => {
-  //     try {
-  //       setLoading(true)
-
-  //       const res = await fetch(`/history/${selectedName}`)
-  //       if (!res.ok) throw new Error("Failed to fetch history")
-  //       const data = await res.json()
-
-  //       // Assurez-vous que la date est en format timestamp pour Recharts
-  //       const formattedData = data.map((item: any) => ({
-  //         ...item,
-  //         date: new Date(item.date).getTime(),
-  //       }))
-
-  //       setChartData(formattedData)
-  //     } catch (err) {
-  //       console.error(err)
-  //       setChartData([])
-  //     } finally {
-  //       setLoading(false)
-  //     } // React.useEffect(() => {
-  //   if (!selectedName) return
-
-  //   const fetchData = async () => {
-  //     try {
-  //       setLoading(true)
-
-  //       const res = await fetch(`/history/${selectedName}`)
-  //       if (!res.ok) throw new Error("Failed to fetch history")
-  //       const data = await res.json()
-
-  //       // Assurez-vous que la date est en format timestamp pour Recharts
-  //       const formattedData = data.map((item: any) => ({
-  //         ...item,
-  //         date: new Date(item.date).getTime(),
-  //       }))
-
-  //       setChartData(formattedData)
-  //     } catch (err) {
-  //       console.error(err)
-  //       setChartData([])
-  //     } finally {
-  //       setLoading(false)
-  //     }
-  //   }
-
-  //   fetchData()
-  // }, [selectedName])
-  //   }
-
-  //   fetchData()
-  // }, [selectedName])
 
   // 🧮 Filtrer selon la période choisie
   const filteredData = React.useMemo(() => {
@@ -194,7 +135,7 @@ export function ChartAreaInteractive({ selectedName }: ChartAreaInteractiveProps
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         {loading ? (
           <div className="flex h-[250px] items-center justify-center text-sm text-muted-foreground">
-            Loading fake data for {selectedName}...
+            Loading for {selectedName}...
           </div>
         ) : selectedName ? (
           <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
@@ -206,6 +147,10 @@ export function ChartAreaInteractive({ selectedName }: ChartAreaInteractiveProps
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} />
+              <YAxis 
+                domain={['dataMin', 'dataMax']} 
+                hide 
+              />
               <XAxis
                 dataKey="date"
                 tickLine={false}
@@ -214,10 +159,11 @@ export function ChartAreaInteractive({ selectedName }: ChartAreaInteractiveProps
                 minTickGap={32}
                 tickFormatter={(value) => {
                   const date = new Date(value)
-                  return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
+                  return date.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })
+                  // Si vous avez un mélange de jours, utilisez une logique conditionnelle ici
                 }}
               />
               <ChartTooltip
@@ -228,6 +174,8 @@ export function ChartAreaInteractive({ selectedName }: ChartAreaInteractiveProps
                       new Date(value).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
                       })
                     }
                     indicator="dot"
@@ -236,7 +184,7 @@ export function ChartAreaInteractive({ selectedName }: ChartAreaInteractiveProps
               />
               <Area
                 dataKey="price"
-                type="natural"
+                type="monotone" // "monotone" peut être une autre option
                 fill="url(#fillPrice)"
                 stroke="var(--color-price)"
                 strokeWidth={2}
