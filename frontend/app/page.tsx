@@ -28,7 +28,26 @@ export default function Page() {
     return item.name?.toLowerCase().includes(search.toLowerCase());
   });
 
+  // sinon le DataTable est vide au depart
+  function getAllLastData() {
+    try {
+      fetch("http://localhost:9000/lastdata")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Données récupérées:", data);
+          setMessages(data);
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la récupération des données:", error);
+        });
+    }
+    catch (error) {
+      console.error("Erreur inattendue:", error);
+    }
+  }
+
   useEffect(() => {
+    getAllLastData();
     const socket = new WebSocket('ws://localhost:9000/connect');
     const socketInitializer = async () => {
       
