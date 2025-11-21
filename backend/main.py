@@ -1,8 +1,9 @@
 from typing import List, Union
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect 
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends 
 from socket_manager import ConnectionManager
-from db import create_db, get_session
+from db import create_db, get_session, crypto, SessionDep
 from kafka_utils import get_consumer
+from sqlmodel import select
 import asyncio
 import threading
 
@@ -12,7 +13,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def on_startup():
-    create_db() 
+    # create_db() 
     loop = asyncio.get_event_loop()
     threading.Thread(target=kafka_listener, args=(loop,), daemon=True).start()
 
@@ -31,10 +32,14 @@ async def connect(websocket: WebSocket):
 def hello():
     return "Hello World"
 
-@app.get("/history")
-def history():
-    db = get_session()
-    return res
+@app.get("/history/{crypto_name}")
+def history(session: SessionDep, crypto_name: str):
+    query = select(crypto.price, crypto.date).where(crypto.name == crypto_name)
+    results = session.exec(query).all()
+    return [
+        {"price": row[0], "date": row[1]}
+        for row in results
+    ]
 
 def kafka_listener(loop):
     consumer = get_consumer()
