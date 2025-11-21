@@ -48,6 +48,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table"
 import { z } from "zod"
+import { CryptoData } from '@/types/crypto'
 
 // ============================================================================
 // 🔹 Schema
@@ -64,7 +65,7 @@ export const schema = z.object({
 // ============================================================================
 // 🔹 Columns
 // ============================================================================
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const columns: ColumnDef<CryptoData>[] = [
   {
     accessorKey: "name",
     header: "Token",
@@ -128,7 +129,7 @@ function DraggableRow({
   row,
   onSelectName,
 }: {
-  row: Row<z.infer<typeof schema>>
+  row: Row<CryptoData>
   onSelectName?: (name: string) => void
 }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -171,16 +172,9 @@ function DraggableRow({
 // ============================================================================
 // 🔹 DataTable Component
 // ============================================================================
-export function DataTable({
-  data: initialData,
-  onSelectName, // ✅ Nouvelle prop
-}: {
-  data: z.infer<typeof schema>[]
-  onSelectName?: (name: string) => void
-}) {
-  const [data, setData] = React.useState(() =>
-    Array.isArray(initialData) ? initialData : []
-  )
+export function DataTable({ data: initialData,  onSelectName}: { data: CryptoData[] ,  onSelectName?: (name: string) => void }) {
+  const data = Array.isArray(initialData) ? initialData : [];
+
 
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -230,17 +224,6 @@ export function DataTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id)
-        const newIndex = dataIds.indexOf(over.id)
-        return arrayMove(data, oldIndex, newIndex)
-      })
-    }
-  }
-
   return (
     <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
       <TabsContent
@@ -253,7 +236,6 @@ export function DataTable({
             sensors={sensors}
             collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
           >
             <Table>
               <TableHeader className="bg-muted sticky top-0 z-10">

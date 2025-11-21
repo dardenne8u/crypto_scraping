@@ -70,12 +70,13 @@ services:
     image: timescale/timescaledb:latest-pg17
     container_name: db
     restart: always
+    shm_size: 2g
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - "dbvol:/dev/shm"
+      - db_data:/var/lib/postgresql/data
     networks:
       - db-net
       - kafka-net
@@ -191,6 +192,7 @@ services:
 
 volumes:
   dbvol:
+  db_data:
   kafka-data1:
   kafka-data2:
   kafka-data3:

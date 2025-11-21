@@ -16,5 +16,11 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+        for connection in self.active_connections[:]: 
+            try:
+                await connection.send_text(message)
+            except Exception as e:
+                try:
+                    self.disconnect(connection)
+                except:
+                    pass
