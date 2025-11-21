@@ -41,6 +41,13 @@ def history(session: SessionDep, crypto_name: str):
         for row in results
     ]
 
+@app.get("/lastdata")
+def lastdata(session: SessionDep):
+    query = select(crypto).where(crypto.date.in_(
+        select(crypto.date).distinct().order_by(crypto.date.desc()).limit(1)))
+    results = session.exec(query).all()
+    return results
+
 def kafka_listener(loop):
     consumer = get_consumer()
     for message in consumer:
